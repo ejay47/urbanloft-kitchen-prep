@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Urban Loft — Kitchen Prep Line</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --graphite:#1E2124;
+    --steel:#2C3136;
+    --steel-line:#3E454C;
+    --paper:#F2EFE6;
+    --ticket:#FBF9F2;
+    --ink:#20241f;
+    --amber:#E3A83B;
+    --green:#4C9A6A;
+    --green-dark:#2F6B47;
+    --red:#C1443D;
+    --muted:#8B9199;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--graphite);
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--amber);color:var(--graphite);}
+
+  /* ---------- Header / rail ---------- */
+  header.rail{
+    position:sticky; top:0; z-index:50;
+    background:var(--graphite);
+    border-bottom:2px solid var(--steel-line);
+    padding:14px 18px 0 18px;
+  }
+  .rail-top{
+    display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap;
+  }
+  .brand{
+    font-family:'Oswald',sans-serif; font-weight:700; letter-spacing:.04em;
+    font-size:20px; text-transform:uppercase; color:var(--paper);
+  }
+  .brand small{
+    display:block; font-family:'IBM Plex Mono',monospace; font-weight:400; letter-spacing:.08em;
+    font-size:10.5px; color:var(--amber); text-transform:uppercase; margin-top:2px;
+  }
+  .clock{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); text-align:right;
+  }
+  nav.tabs{ display:flex; gap:2px; margin-top:14px; }
+  nav.tabs button{
+    flex:1; padding:11px 8px; background:transparent; border:none; border-bottom:3px solid transparent;
+    color:var(--muted); font-family:'Oswald',sans-serif; font-weight:600; letter-spacing:.05em;
+    font-size:13px; text-transform:uppercase; cursor:pointer;
+  }
+  nav.tabs button.active{ color:var(--paper); border-bottom-color:var(--amber); }
+  nav.tabs button:hover{ color:var(--paper); }
+
+  main{ max-width:760px; margin:0 auto; padding:18px 14px 120px 14px; }
+
+  /* ---------- Ticket header card (today) ---------- */
+  .ticket-meta{
+    background:var(--steel); border:1px solid var(--steel-line); border-radius:3px;
+    padding:16px; margin-bottom:16px;
+  }
+  .meta-row{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+  .meta-row:last-child{ margin-bottom:0; }
+  .field{ flex:1; min-width:140px; }
+  .field label{
+    display:block; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em;
+    color:var(--muted); text-transform:uppercase; margin-bottom:5px;
+  }
+  .field input[type=text], .field textarea{
+    width:100%; background:var(--graphite); border:1px solid var(--steel-line); color:var(--paper);
+    border-radius:2px; padding:9px 10px; font-family:'Inter',sans-serif; font-size:14px;
+  }
+  .field textarea{ resize:vertical; min-height:52px; font-family:'IBM Plex Mono',monospace; font-size:12.5px; }
+  .field input:focus, .field textarea:focus{ outline:2px solid var(--amber); outline-offset:0; border-color:var(--amber); }
+  .shift-toggle{ display:flex; gap:6px; }
+  .shift-toggle button{
+    flex:1; padding:9px 6px; background:var(--graphite); border:1px solid var(--steel-line); color:var(--muted);
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:12.5px; letter-spacing:.04em; text-transform:uppercase;
+    border-radius:2px; cursor:pointer;
+  }
+  .shift-toggle button.active{ background:var(--amber); border-color:var(--amber); color:var(--graphite); }
+
+  /* ---------- Progress ---------- */
+  .progress-wrap{ margin:14px 0 18px 0; }
+  .progress-label{
+    display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace;
+    font-size:11px; color:var(--muted); margin-bottom:6px; letter-spacing:.05em; text-transform:uppercase;
+  }
+  .progress-track{ height:8px; background:var(--steel); border-radius:4px; overflow:hidden; border:1px solid var(--steel-line); }
+  .progress-fill{ height:100%; background:linear-gradient(90deg,var(--amber),var(--green)); transition:width .35s ease; }
+
+  /* ---------- Sections / stations ---------- */
+  .station{
+    background:var(--steel); border:1px solid var(--steel-line); border-radius:3px; margin-bottom:10px; overflow:hidden;
+  }
+  .station-head{
+    display:flex; align-items:center; justify-content:space-between; padding:13px 14px; cursor:pointer;
+    -webkit-user-select:none; user-select:none;
+  }
+  .station-title{ display:flex; align-items:center; gap:10px; }
+  .station-num{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--amber); border:1px solid var(--amber);
+    border-radius:2px; padding:1px 6px;
+  }
+  .station-name{ font-family:'Oswald',sans-serif; font-weight:600; letter-spacing:.03em; font-size:15px; text-transform:uppercase; }
+  .station-stat{ font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--muted); }
+  .station-stat.done{ color:var(--green); }
+  .chevron{ color:var(--muted); font-size:12px; transition:transform .2s ease; }
+  .station.open .chevron{ transform:rotate(90deg); }
+  .station-body{ display:none; padding:0 14px 14px 14px; border-top:1px solid var(--steel-line); }
+  .station.open .station-body{ display:block; padding-top:12px; }
+
+  .subgroup-label{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.08em; color:var(--muted);
+    text-transform:uppercase; margin:12px 0 6px 0;
+  }
+  .subgroup-label:first-child{ margin-top:0; }
+
+  .item-row{
+    display:flex; align-items:center; gap:11px; padding:9px 2px; border-bottom:1px solid rgba(255,255,255,.04);
+  }
+  .item-row:last-child{ border-bottom:none; }
+  .item-row input[type=checkbox]{
+    appearance:none; -webkit-appearance:none; width:20px; height:20px; min-width:20px;
+    border:1.5px solid var(--muted); border-radius:3px; background:var(--graphite); cursor:pointer; position:relative;
+  }
+  .item-row input[type=checkbox]:checked{ background:var(--green); border-color:var(--green-dark); }
+  .item-row input[type=checkbox]:checked::after{
+    content:''; position:absolute; left:6px; top:2px; width:5px; height:10px;
+    border:solid var(--graphite); border-width:0 2px 2px 0; transform:rotate(40deg);
+  }
+  .item-row input[type=checkbox]:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+  .item-row label{ font-size:14px; cursor:pointer; flex:1; }
+  .item-row.checked label{ color:var(--muted); text-decoration:line-through; text-decoration-color:var(--steel-line); }
+  .other-input{
+    width:100%; background:var(--graphite); border:1px solid var(--steel-line); color:var(--paper);
+    border-radius:2px; padding:7px 9px; font-size:13px; margin-top:8px;
+  }
+
+  /* ---------- Submit bar ---------- */
+  .submit-bar{
+    position:fixed; bottom:0; left:0; right:0; background:var(--graphite); border-top:2px solid var(--steel-line);
+    padding:12px 14px calc(12px + env(safe-area-inset-bottom)) 14px; z-index:40;
+  }
+  .submit-bar-inner{ max-width:760px; margin:0 auto; display:flex; align-items:center; gap:12px; }
+  .submit-bar .pct{ font-family:'Oswald',sans-serif; font-size:22px; font-weight:700; color:var(--amber); min-width:52px; }
+  .submit-bar .pct small{ display:block; font-family:'IBM Plex Mono',monospace; font-size:9px; color:var(--muted); font-weight:400; }
+  .btn-submit{
+    flex:1; padding:14px; background:var(--green); color:#0d1a10; border:none; border-radius:3px;
+    font-family:'Oswald',sans-serif; font-weight:700; letter-spacing:.04em; font-size:15px; text-transform:uppercase; cursor:pointer;
+  }
+  .btn-submit:disabled{ background:var(--steel-line); color:var(--muted); cursor:not-allowed; }
+  .btn-submit:not(:disabled):active{ transform:scale(.98); }
+
+  /* ---------- Submitted stamp state ---------- */
+  .stamped-banner{
+    background:rgba(76,154,106,.12); border:1.5px dashed var(--green); border-radius:4px;
+    padding:16px; margin-bottom:16px; text-align:center;
+  }
+  .stamp{
+    display:inline-block; font-family:'Oswald',sans-serif; font-weight:700; color:var(--green);
+    border:2px solid var(--green); border-radius:4px; padding:5px 14px; letter-spacing:.1em; font-size:14px;
+    transform:rotate(-3deg); text-transform:uppercase;
+  }
+  .stamped-sub{ font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--muted); margin-top:8px; }
+
+  /* ---------- History / ticket roll ---------- */
+  .roll-empty{ text-align:center; color:var(--muted); padding:60px 20px; font-family:'IBM Plex Mono',monospace; font-size:13px; }
+  .ticket-card{
+    background:var(--ticket); color:var(--ink); border-radius:2px; margin-bottom:14px; padding:16px 16px 14px 16px;
+    font-family:'IBM Plex Mono',monospace; position:relative; box-shadow:0 3px 0 rgba(0,0,0,.25);
+    background-image:radial-gradient(circle, var(--graphite) 3px, transparent 3.5px);
+    background-size:14px 100%; background-repeat:repeat-x; background-position:top -6px left 4px, bottom -6px left 4px;
+  }
+  .ticket-card .tcard-top{ display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px dashed #b9b3a2; padding-bottom:10px; margin-bottom:10px; }
+  .ticket-card .tdate{ font-weight:600; font-size:14px; }
+  .ticket-card .tshift{ font-size:10.5px; letter-spacing:.08em; color:#6b6255; text-transform:uppercase; }
+  .ticket-card .tstamp{
+    font-family:'Oswald',sans-serif; font-weight:700; font-size:11px; letter-spacing:.08em; padding:3px 8px; border-radius:2px;
+    text-transform:uppercase; transform:rotate(-4deg);
+  }
+  .tstamp.complete{ color:var(--green-dark); border:1.5px solid var(--green-dark); }
+  .tstamp.partial{ color:var(--red); border:1.5px solid var(--red); }
+  .ticket-card .trow{ display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px; color:#3a352c; }
+  .ticket-card .trow span:first-child{ color:#8a8272; }
+  .ticket-card .hod{ margin-top:10px; padding-top:10px; border-top:1px dashed #b9b3a2; display:flex; align-items:center; gap:8px; }
+  .ticket-card .hod input[type=checkbox]{ width:17px; height:17px; }
+  .ticket-card .hod input[type=text]{
+    flex:1; border:1px solid #b9b3a2; background:#fff; border-radius:2px; padding:6px 8px; font-size:11.5px; font-family:'IBM Plex Mono',monospace;
+  }
+  .ticket-card .hod-label{ font-size:10.5px; color:#8a8272; text-transform:uppercase; letter-spacing:.06em; white-space:nowrap; }
+  .ticket-card .expand-btn{ font-size:11px; color:var(--green-dark); text-decoration:underline; cursor:pointer; margin-top:10px; display:inline-block; }
+  .ticket-detail{ margin-top:10px; padding-top:10px; border-top:1px dashed #b9b3a2; font-size:12px; }
+  .ticket-detail .dsec{ margin-bottom:8px; }
+  .ticket-detail .dsec-name{ font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#6b6255; margin-bottom:3px; }
+  .ticket-detail .ditem{ display:flex; gap:6px; font-size:11.5px; padding:1px 0; }
+  .ditem.no{ color:var(--red); }
+  .ditem.yes{ color:#3a352c; }
+
+  .toast{
+    position:fixed; top:14px; left:50%; transform:translateX(-50%) translateY(-140%); z-index:100;
+    background:var(--green); color:#0d1a10; font-family:'Oswald',sans-serif; font-weight:600; font-size:13px;
+    padding:10px 18px; border-radius:3px; letter-spacing:.03em; text-transform:uppercase; transition:transform .3s ease;
+  }
+  .toast.show{ transform:translateX(-50%) translateY(0); }
+
+  .conn-dot{ display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--muted); margin-right:5px; vertical-align:middle; }
+  .conn-dot.live{ background:var(--green); box-shadow:0 0 0 3px rgba(76,154,106,.25); }
+
+  @media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<header class="rail">
+  <div class="rail-top">
+    <div class="brand">Urban Loft<small><span class="conn-dot" id="connDot"></span><span id="connLabel">connecting…</span> · Kitchen Prep Line</small></div>
+    <div class="clock" id="clock"></div>
+  </div>
+  <nav class="tabs">
+    <button class="active" id="tabToday" onclick="switchTab('today')">Today's Ticket</button>
+    <button id="tabHistory" onclick="switchTab('history')">Log &amp; History</button>
+  </nav>
+</header>
+
+<main>
+  <div id="viewToday"></div>
+  <div id="viewHistory" style="display:none;"></div>
+</main>
+
+<div class="submit-bar" id="submitBar">
+  <div class="submit-bar-inner">
+    <div class="pct"><span id="pctNum">0%</span><small>complete</small></div>
+    <button class="btn-submit" id="btnSubmit" onclick="submitDay()" disabled>Submit Day — Lock Ticket</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script>
+/* ============================================================
+   FIREBASE CONFIG — replace with the same project used for
+   UrbanLoftPOS (or a new project) so this data lives alongside
+   your other live systems. Get this from Firebase Console →
+   Project Settings → General → Your apps → SDK setup snippet.
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyCZeGZV04UpLYiQbOBZ-8n6Ug18RVgvvLY",
+  authDomain: "urbanloft-kitchen.firebaseapp.com",
+  databaseURL: "https://urbanloft-kitchen-default-rtdb.firebaseio.com",
+  projectId: "urbanloft-kitchen",
+  storageBucket: "urbanloft-kitchen.firebasestorage.app",
+  messagingSenderId: "516611492400",
+  appId: "1:516611492400:web:4f20f07fd288d168c8fbf5"
+};
+let LIVE_MODE = false;
+let db;
+
+function makeLocalDb(){
+  /* Fallback store so the page always works standalone (single device,
+     saved in this browser only) until a real Firebase config is added.
+     Mimics the tiny slice of the Firebase RTDB API this app uses. */
+  const listeners = {}; // path -> [{event, cb}]
+  function read(path){
+    try{ return JSON.parse(localStorage.getItem('kp:'+path) || 'null'); }catch(e){ return null; }
+  }
+  function write(path, val){
+    localStorage.setItem('kp:'+path, JSON.stringify(val));
+    (listeners[path]||[]).forEach(l=> l.cb({ val:()=>read(path) }));
+  }
+  function deepMerge(base, patch){
+    if(patch===null || typeof patch!=='object' || Array.isArray(patch)) return patch;
+    const out = Object.assign({}, base && typeof base==='object' ? base : {});
+    Object.keys(patch).forEach(k=>{ out[k] = deepMerge(out[k], patch[k]); });
+    return out;
+  }
+  return {
+    ref(path){
+      return {
+        on(event, cb){
+          listeners[path] = listeners[path] || [];
+          listeners[path].push({event, cb});
+          if(path==='.info/connected'){ cb({ val:()=>true }); return; }
+          cb({ val:()=>read(path) });
+        },
+        off(){ listeners[path] = []; },
+        update(patch){
+          write(path, deepMerge(read(path), patch));
+          return Promise.resolve();
+        },
+        set(val){ write(path, val); return Promise.resolve(); }
+      };
+    }
+  };
+}
+
+try{
+  if(!firebaseConfig.apiKey || firebaseConfig.apiKey.indexOf('REPLACE_ME') !== -1){
+    throw new Error('Firebase config not set — using local-only fallback.');
+  }
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.database();
+  LIVE_MODE = true;
+}catch(e){
+  console.warn(e.message);
+  db = makeLocalDb();
+  LIVE_MODE = false;
+}
+
+/* ============================================================
+   CHECKLIST DEFINITION — mirrors the Daily Kitchen Preparation
+   Checklist. Edit this array to add/remove stations or items;
+   the rest of the app renders from it automatically.
+   ============================================================ */
+const STATIONS = [
+  { key:'hygiene', num:1, name:'Hygiene & Food Safety', items:[
+    {id:'h1', label:'Full chef uniform worn, including name badge'},
+    {id:'h2', label:'Proper handwashing and sanitization completed'},
+    {id:'h3', label:'Workstation thoroughly cleaned and sanitized'},
+    {id:'h4', label:'Color-coded chopping boards in place and correctly assigned'},
+    {id:'h5', label:'Knives and kitchen equipment clean, safe, and in good condition'},
+    {id:'h6', label:'Refrigeration temperatures checked, recorded, and within safe limits'},
+  ]},
+  { key:'mise', num:2, name:'Mise en Place', groups:[
+    { label:'Proteins', items:[
+      {id:'m1', label:'Chicken'}, {id:'m2', label:'Beef'}, {id:'m3', label:'Fish'},
+      {id:'m4', label:'Bacon'}, {id:'m5', label:'Sausages'},
+      {id:'m6', label:'Other', other:true},
+    ]},
+    { label:'Vegetables', items:[
+      {id:'m7', label:'Onions'}, {id:'m8', label:'Tomatoes'}, {id:'m9', label:'Bell peppers'},
+      {id:'m10', label:'Lettuce'}, {id:'m11', label:'Cucumbers'}, {id:'m12', label:'Carrots'},
+      {id:'m13', label:'Fresh herbs'}, {id:'m14', label:'Other', other:true},
+    ]},
+    { label:'Dry Goods & Sauces', items:[
+      {id:'m15', label:'Rice'}, {id:'m16', label:'Pasta'}, {id:'m17', label:'Flour'},
+      {id:'m18', label:'Spices'}, {id:'m19', label:'Cooking oil'},
+      {id:'m20', label:'Sauces and dressings prepared and labeled'},
+    ]},
+  ]},
+  { key:'menu', num:3, name:'Menu Readiness', items:[
+    {id:'r1', label:'Soups prepared and held at correct temperature'},
+    {id:'r2', label:'Sauces prepared and properly stored'},
+    {id:'r3', label:'Side dishes ready for service'},
+    {id:'r4', label:'Desserts prepared and plated or stored appropriately'},
+    {id:'r5', label:'Garnishes prepared and organized'},
+  ]},
+  { key:'equipment', num:4, name:'Equipment Check', items:[
+    {id:'e1', label:'Ovens preheated and functioning correctly'},
+    {id:'e2', label:'Grill operational and clean'},
+    {id:'e3', label:'Fryers heated and filtered if required'},
+    {id:'e4', label:'Gas supply checked and secure'},
+    {id:'e5', label:'Blender/Mixer tested and operational'},
+  ]},
+  { key:'stock', num:5, name:'Stock Control', items:[
+    {id:'s1', label:'Adequate stock available for service'},
+    {id:'s2', label:'Low-stock items identified and reported'},
+    {id:'s3', label:'Requisitions completed and submitted as required'},
+  ], note:{ id:'stockNote', label:'Low-stock items / requisition notes' } },
+  { key:'cleaning', num:6, name:'Cleaning & Sanitation', items:[
+    {id:'c1', label:'Floors cleaned and free of hazards'},
+    {id:'c2', label:'Work surfaces sanitized'},
+    {id:'c3', label:'Sinks cleaned and operational'},
+    {id:'c4', label:'Waste bins emptied and lined'},
+    {id:'c5', label:'Dishwashing area clean and well organized'},
+  ]},
+  { key:'briefing', num:7, name:'Team Briefing', items:[
+    {id:'b1', label:'Daily specials reviewed and communicated'},
+    {id:'b2', label:'Reservations and expected covers discussed'},
+    {id:'b3', label:'Special guest requests and dietary requirements communicated'},
+    {id:'b4', label:'Station responsibilities clearly assigned'},
+  ], note:{ id:'briefingNote', label:'Briefing notes' } },
+];
+
+function allItemIds(){
+  let ids = [];
+  STATIONS.forEach(st=>{
+    if(st.items) ids = ids.concat(st.items.map(i=>i.id));
+    if(st.groups) st.groups.forEach(g=> ids = ids.concat(g.items.map(i=>i.id)));
+  });
+  return ids;
+}
+const ALL_ITEM_IDS = allItemIds();
+
+/* ============================================================
+   STATE
+   ============================================================ */
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function guessShift(){
+  const h = new Date().getHours();
+  return (h>=15) ? 'Evening' : 'Morning';
+}
+
+let currentDate = todayStr();
+let currentShift = guessShift();
+let ticket = blankTicket();
+let openStations = {};
+let ticketRef = null;
+let submitting = false;
+let historyLoaded = false;
+let historyData = {};
+let expandedTickets = {};
+
+function blankTicket(){
+  const items = {};
+  ALL_ITEM_IDS.forEach(id=> items[id] = false);
+  const others = {};
+  STATIONS.forEach(st=>{
+    if(st.groups) st.groups.forEach(g=> g.items.forEach(i=>{ if(i.other) others[i.id]=''; }));
+  });
+  const notes = {};
+  STATIONS.forEach(st=>{ if(st.note) notes[st.note.id]=''; });
+  return {
+    date: currentDate, shift: currentShift,
+    chefOnDuty:'', preparedBy:'', items, others, notes,
+    submitted:false, submittedAt:null,
+    hodApproved:false, hodApprovedBy:''
+  };
+}
+
+/* ============================================================
+   FIREBASE WIRING — live sync for the current day/shift ticket
+   ============================================================ */
+function pathFor(date, shift){ return 'kitchenPrep/checklists/'+date+'/'+shift; }
+
+function attachTodayListener(){
+  if(ticketRef) ticketRef.off();
+  ticketRef = db.ref(pathFor(currentDate, currentShift));
+  ticketRef.on('value', snap=>{
+    const val = snap.val();
+    ticket = val ? mergeWithBlank(val) : blankTicket();
+    renderToday();
+  }, err=>{ console.error(err); setConn(false); });
+}
+
+function mergeWithBlank(val){
+  const b = blankTicket();
+  return {
+    date: val.date || currentDate,
+    shift: val.shift || currentShift,
+    chefOnDuty: val.chefOnDuty || '',
+    preparedBy: val.preparedBy || '',
+    items: Object.assign(b.items, val.items||{}),
+    others: Object.assign(b.others, val.others||{}),
+    notes: Object.assign(b.notes, val.notes||{}),
+    submitted: !!val.submitted,
+    submittedAt: val.submittedAt || null,
+    hodApproved: !!val.hodApproved,
+    hodApprovedBy: val.hodApprovedBy || ''
+  };
+}
+
+function pushUpdate(patch){
+  if(ticket.submitted) return; // locked
+  ticketRef.update(patch);
+}
+
+function setConn(live){
+  const dot = document.getElementById('connDot');
+  const label = document.getElementById('connLabel');
+  if(!LIVE_MODE){
+    dot.classList.remove('live');
+    label.textContent = 'local only — no Firebase config yet';
+    return;
+  }
+  dot.classList.toggle('live', live);
+  label.textContent = live ? 'live' : 'offline';
+}
+db.ref('.info/connected').on('value', s=> setConn(!!s.val()));
+
+/* ============================================================
+   RENDER — Today
+   ============================================================ */
+function completion(){
+  const done = ALL_ITEM_IDS.filter(id=>ticket.items[id]).length;
+  return Math.round((done/ALL_ITEM_IDS.length)*100);
+}
+
+function renderToday(){
+  const el = document.getElementById('viewToday');
+  const pct = completion();
+  document.getElementById('pctNum').textContent = pct+'%';
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = ticket.submitted || !ticket.chefOnDuty.trim();
+  btn.textContent = ticket.submitted ? 'Ticket Locked' : 'Submit Day — Lock Ticket';
+  document.getElementById('submitBar').style.display = ticket.submitted ? 'none' : 'block';
+
+  let html = '';
+
+  if(!LIVE_MODE){
+    html += `<div style="background:rgba(227,168,59,.12);border:1.5px dashed var(--amber);border-radius:4px;padding:12px 14px;margin-bottom:16px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--amber);line-height:1.5;">
+      Running in local-only mode — this ticket is only saved on this device/browser, not shared across the kitchen yet.<br>
+      Add your Firebase config at the top of the file to turn on live multi-device sync.
+    </div>`;
+  }
+
+  if(ticket.submitted){
+    html += `<div class="stamped-banner">
+      <span class="stamp">✓ Day Submitted</span>
+      <div class="stamped-sub">${escapeHtml(ticket.date)} · ${escapeHtml(ticket.shift)} shift · locked ${ticket.submittedAt?fmtTime(ticket.submittedAt):''}<br>
+      Filed under Log &amp; History. A fresh ticket opens automatically tomorrow.</div>
+    </div>`;
+  }
+
+  html += `<div class="ticket-meta">
+    <div class="meta-row">
+      <div class="field"><label>Date</label><input type="text" value="${escapeHtml(ticket.date)}" disabled></div>
+      <div class="field"><label>Shift</label>
+        <div class="shift-toggle">
+          <button class="${currentShift==='Morning'?'active':''}" onclick="setShift('Morning')">Morning</button>
+          <button class="${currentShift==='Evening'?'active':''}" onclick="setShift('Evening')">Evening</button>
+        </div>
+      </div>
+    </div>
+    <div class="meta-row">
+      <div class="field"><label>Chef on Duty</label>
+        <input type="text" id="chefOnDuty" placeholder="Name" value="${escapeHtml(ticket.chefOnDuty)}" ${ticket.submitted?'disabled':''}
+          onchange="pushUpdate({chefOnDuty:this.value})">
+      </div>
+      <div class="field"><label>Prepared By</label>
+        <input type="text" id="preparedBy" placeholder="Name" value="${escapeHtml(ticket.preparedBy)}" ${ticket.submitted?'disabled':''}
+          onchange="pushUpdate({preparedBy:this.value})">
+      </div>
+    </div>
+  </div>`;
+
+  html += `<div class="progress-wrap">
+    <div class="progress-label"><span>Overall completion</span><span>${pct}%</span></div>
+    <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+  </div>`;
+
+  STATIONS.forEach(st=>{
+    const {done,total} = stationStats(st);
+    const isOpen = openStations[st.key];
+    html += `<div class="station ${isOpen?'open':''}">
+      <div class="station-head" onclick="toggleStation('${st.key}')">
+        <div class="station-title"><span class="station-num">${st.num}</span><span class="station-name">${escapeHtml(st.name)}</span></div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="station-stat ${done===total?'done':''}">${done}/${total}</span>
+          <span class="chevron">▶</span>
+        </div>
+      </div>
+      <div class="station-body">`;
+
+    if(st.items){
+      st.items.forEach(i=> html += itemRow(i));
+    }
+    if(st.groups){
+      st.groups.forEach(g=>{
+        html += `<div class="subgroup-label">${escapeHtml(g.label)}</div>`;
+        g.items.forEach(i=> html += itemRow(i));
+      });
+    }
+    if(st.note){
+      html += `<div class="field" style="margin-top:10px;">
+        <label>${escapeHtml(st.note.label)}</label>
+        <textarea ${ticket.submitted?'disabled':''} onchange="pushUpdate({notes:{'${st.note.id}':this.value}})">${escapeHtml(ticket.notes[st.note.id]||'')}</textarea>
+      </div>`;
+    }
+
+    html += `</div></div>`;
+  });
+
+  el.innerHTML = html;
+}
+
+function itemRow(item){
+  const checked = !!ticket.items[item.id];
+  let row = `<div class="item-row ${checked?'checked':''}">
+    <input type="checkbox" id="chk_${item.id}" ${checked?'checked':''} ${ticket.submitted?'disabled':''}
+      onchange="toggleItem('${item.id}', this.checked)">
+    <label for="chk_${item.id}">${escapeHtml(item.label)}</label>
+  </div>`;
+  if(item.other){
+    row += `<input type="text" class="other-input" placeholder="Specify…" value="${escapeHtml(ticket.others[item.id]||'')}" ${ticket.submitted?'disabled':''}
+      onchange="pushUpdate({others:{'${item.id}':this.value}})">`;
+  }
+  return row;
+}
+
+function stationStats(st){
+  let ids = [];
+  if(st.items) ids = ids.concat(st.items.map(i=>i.id));
+  if(st.groups) st.groups.forEach(g=> ids = ids.concat(g.items.map(i=>i.id)));
+  const done = ids.filter(id=>ticket.items[id]).length;
+  return {done, total: ids.length};
+}
+
+function toggleItem(id, val){
+  ticket.items[id] = val; // optimistic
+  renderToday();
+  pushUpdate({items:{[id]:val}});
+}
+function toggleStation(key){
+  openStations[key] = !openStations[key];
+  renderToday();
+}
+function setShift(shift){
+  if(shift===currentShift) return;
+  currentShift = shift;
+  attachTodayListener();
+}
+
+function submitDay(){
+  if(submitting || ticket.submitted) return;
+  if(!ticket.chefOnDuty.trim()){ showToast('Enter chef on duty first'); return; }
+  const pct = completion();
+  const proceed = ()=>{
+    submitting = true;
+    ticketRef.update({
+      submitted:true,
+      submittedAt: Date.now(),
+      completionPct: pct
+    }).then(()=>{ submitting=false; showToast('Day submitted & locked'); })
+      .catch(()=>{ submitting=false; showToast('Submit failed — check connection'); });
+  };
+  if(pct < 100){
+    if(confirm(`This ticket is ${pct}% complete. Submit anyway?`)) proceed();
+  } else {
+    proceed();
+  }
+}
+
+/* ============================================================
+   RENDER — History
+   ============================================================ */
+function attachHistoryListener(){
+  if(historyLoaded) return;
+  historyLoaded = true;
+  db.ref('kitchenPrep/checklists').on('value', snap=>{
+    historyData = snap.val() || {};
+    if(document.getElementById('viewHistory').style.display !== 'none') renderHistory();
+  });
+}
+
+function renderHistory(){
+  const el = document.getElementById('viewHistory');
+  const dates = Object.keys(historyData).sort().reverse();
+  if(dates.length===0){
+    el.innerHTML = `<div class="roll-empty">No tickets logged yet.<br>Submitted days will appear here.</div>`;
+    return;
+  }
+  let html = '';
+  dates.forEach(date=>{
+    ['Evening','Morning'].forEach(shift=>{
+      const t = historyData[date] && historyData[date][shift];
+      if(!t) return;
+      const key = date+'_'+shift;
+      const merged = mergeWithBlank(t);
+      const pct = merged.submitted ? (t.completionPct ?? calcPctFromItems(merged)) : calcPctFromItems(merged);
+      const complete = pct===100;
+      html += `<div class="ticket-card">
+        <div class="tcard-top">
+          <div><div class="tdate">${escapeHtml(date)}</div><div class="tshift">${escapeHtml(shift)} shift</div></div>
+          ${merged.submitted
+            ? `<span class="tstamp ${complete?'complete':'partial'}">${complete?'Complete':pct+'% filed'}</span>`
+            : `<span class="tstamp partial">In progress</span>`}
+        </div>
+        <div class="trow"><span>Chef on duty</span><span>${escapeHtml(merged.chefOnDuty||'—')}</span></div>
+        <div class="trow"><span>Prepared by</span><span>${escapeHtml(merged.preparedBy||'—')}</span></div>
+        <div class="trow"><span>Submitted</span><span>${merged.submittedAt?fmtTime(merged.submittedAt):'not yet'}</span></div>
+        <div class="hod">
+          <input type="checkbox" id="hodchk_${key}" ${merged.hodApproved?'checked':''} onchange="setHodApproval('${date}','${shift}', this.checked)">
+          <span class="hod-label">HOD Approved</span>
+          <input type="text" placeholder="HOD name" value="${escapeHtml(merged.hodApprovedBy||'')}" onchange="setHodName('${date}','${shift}', this.value)">
+        </div>
+        <span class="expand-btn" onclick="toggleExpand('${key}')">${expandedTickets[key]?'Hide details':'View full ticket'}</span>
+        ${expandedTickets[key] ? renderDetail(merged) : ''}
+      </div>`;
+    });
+  });
+  el.innerHTML = html || `<div class="roll-empty">No tickets logged yet.</div>`;
+}
+
+function calcPctFromItems(merged){
+  const done = ALL_ITEM_IDS.filter(id=>merged.items[id]).length;
+  return Math.round((done/ALL_ITEM_IDS.length)*100);
+}
+
+function renderDetail(merged){
+  let html = `<div class="ticket-detail">`;
+  STATIONS.forEach(st=>{
+    let ids = [];
+    if(st.items) ids = ids.concat(st.items.map(i=>({id:i.id,label:i.label})));
+    if(st.groups) st.groups.forEach(g=> ids = ids.concat(g.items.map(i=>({id:i.id,label:g.label+': '+i.label}))));
+    html += `<div class="dsec"><div class="dsec-name">${escapeHtml(st.name)}</div>`;
+    ids.forEach(i=>{
+      const ok = !!merged.items[i.id];
+      html += `<div class="ditem ${ok?'yes':'no'}">${ok?'✓':'✗'} ${escapeHtml(i.label)}</div>`;
+    });
+    if(st.note && merged.notes[st.note.id]){
+      html += `<div class="ditem yes">note: ${escapeHtml(merged.notes[st.note.id])}</div>`;
+    }
+    html += `</div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function toggleExpand(key){ expandedTickets[key] = !expandedTickets[key]; renderHistory(); }
+function setHodApproval(date, shift, val){ db.ref(pathFor(date,shift)).update({hodApproved:val}); }
+function setHodName(date, shift, val){ db.ref(pathFor(date,shift)).update({hodApprovedBy:val}); }
+
+/* ============================================================
+   TABS / MISC
+   ============================================================ */
+function switchTab(tab){
+  document.getElementById('tabToday').classList.toggle('active', tab==='today');
+  document.getElementById('tabHistory').classList.toggle('active', tab==='history');
+  document.getElementById('viewToday').style.display = tab==='today' ? 'block':'none';
+  document.getElementById('viewHistory').style.display = tab==='history' ? 'block':'none';
+  document.getElementById('submitBar').style.display = (tab==='today' && !ticket.submitted) ? 'block':'none';
+  if(tab==='history'){ attachHistoryListener(); renderHistory(); }
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=> t.classList.remove('show'), 2200);
+}
+function escapeHtml(s){
+  return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function fmtTime(ts){
+  const d = new Date(ts);
+  return d.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+}
+function tickClock(){
+  const d = new Date();
+  document.getElementById('clock').textContent = d.toLocaleString([], {weekday:'short', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+  // auto-roll to a new day's ticket without reload
+  const nowDate = todayStr();
+  if(nowDate !== currentDate){
+    currentDate = nowDate;
+    currentShift = guessShift();
+    attachTodayListener();
+  }
+}
+setInterval(tickClock, 30000);
+tickClock();
+
+attachTodayListener();
+renderToday();
+</script>
+</body>
+</html>
