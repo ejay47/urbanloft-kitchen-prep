@@ -285,6 +285,22 @@ function makeLocalDb(){
     Object.keys(patch).forEach(k=>{ out[k] = deepMerge(out[k], patch[k]); });
     return out;
   }
+  function applyFlatPatch(base, patch){
+    // Firebase-style multi-path update: keys may contain '/' to target a nested leaf
+    // without touching its siblings, e.g. {'items/h1': true}.
+    let out = Object.assign({}, base && typeof base==='object' ? base : {});
+    Object.keys(patch).forEach(key=>{
+      const parts = key.split('/');
+      let cursor = out;
+      for(let i=0;i<parts.length-1;i++){
+        const p = parts[i];
+        cursor[p] = Object.assign({}, cursor[p] && typeof cursor[p]==='object' ? cursor[p] : {});
+        cursor = cursor[p];
+      }
+      cursor[parts[parts.length-1]] = patch[key];
+    });
+    return out;
+  }
   return {
     ref(path){
       return {
@@ -296,7 +312,7 @@ function makeLocalDb(){
         },
         off(){ listeners[path] = []; },
         update(patch){
-          write(path, deepMerge(read(path), patch));
+          write(path, applyFlatPatch(read(path), patch));
           return Promise.resolve();
         },
         set(val){ write(path, val); return Promise.resolve(); }
@@ -568,7 +584,7 @@ function renderToday(){
     if(st.note){
       html += `<div class="field" style="margin-top:10px;">
         <label>${escapeHtml(st.note.label)}</label>
-        <textarea ${ticket.submitted?'disabled':''} onchange="pushUpdate({notes:{'${st.note.id}':this.value}})">${escapeHtml(ticket.notes[st.note.id]||'')}</textarea>
+        <textarea ${ticket.submitted?'disabled':''} onchange="pushUpdate({'notes/${st.note.id}': this.value})">${escapeHtml(ticket.notes[st.note.id]||'')}</textarea>
       </div>`;
     }
 
@@ -587,7 +603,7 @@ function itemRow(item){
   </div>`;
   if(item.other){
     row += `<input type="text" class="other-input" placeholder="Specify…" value="${escapeHtml(ticket.others[item.id]||'')}" ${ticket.submitted?'disabled':''}
-      onchange="pushUpdate({others:{'${item.id}':this.value}})">`;
+      onchange="pushUpdate({'others/${item.id}': this.value})">`;
   }
   return row;
 }
@@ -603,7 +619,7 @@ function stationStats(st){
 function toggleItem(id, val){
   ticket.items[id] = val; // optimistic
   renderToday();
-  pushUpdate({items:{[id]:val}});
+  pushUpdate({['items/'+id]: val});
 }
 function toggleStation(key){
   openStations[key] = !openStations[key];
